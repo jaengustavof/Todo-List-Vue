@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+<body>
+    <div id="shopping-list">
+
+        <!--
+            <label for=""><input type="radio" v-model="newItemPriority" value="low">Low</label>
+            <label for=""><input type="radio" v-model="newItemPriority" value="high">High</label>
+        -->
+        <div class="header">
+            <h1>{{header || 'Welcome'}}</h1>
+            <button 
+            v-if="editing" 
+            @click="doEdit(false)" 
+            class="btn btn-danger m-4">Cancel</button>
+
+            <button 
+            v-else
+            @click="doEdit(true)" 
+            class="btn btn-primary m-4">Add Item</button>
+        </div>
+        
+
+        <div v-if="editing" class="add-item-form">
+            <!-- v-on: se puede reemplazar por @
+                no es necesario poner parentesis ara los metodos,
+                los reconoce automaticamente
+            -->
+            <input 
+            
+            @keyup.enter="saveItem" 
+            class="additem" 
+            v-model="newItem" 
+            type="text" 
+            maxlength="200"
+            placeholder="Add an item">
+            <p class="counter"> {{characterCounter}}/200</p>
+
+            <label>
+                <input type="checkbox" class="m-1" v-model="newItemHighPriority">High Priority
+            </label>
+
+            <button 
+            @click="saveItem" 
+            class="btn btn-primary ml-2"
+            v-bind:disabled="newItem.length ===0"
+            >
+                Save Item
+            </button>
+        </div>
+
+        
+
+        <p v-if="items.length === 0" class="mt-4">Nice Job! You've bought all your items!</p>
+
+        <ul class="mt-4">
+            <!-- clases dimanmicas :class -->
+            <li 
+            v-for='item in reversedItems' 
+            @click="togglePurchased(item)"
+            :key="item.id"
+            :class="{strikeout: item.purchased, priority: item.highPriority}"
+            > {{item.label}}</li>
+            <!--
+                or
+                <li v-for='{id, label} in items' :key="id">{{label}}</li>
+            -->
+        </ul>
+        <!--
+        <ul>
+            <li v-for='item in items' :key="item.id"
+            :class="[
+                item.purchased? 'strikeout': '',
+                item.highPriority? 'priority': ''
+            ]"
+            > {{item.label}}</li>
+        </ul>
+
+        -->
+         <!--
+        <ul>
+            <li v-for='item in items' :key="item.id"
+            :class="[
+                {strikeout: item.purchased},
+                {priority: item.highPriority},
+                'static-class'
+            ]"
+            > {{item.label}}</li>
+        </ul>
+
+        -->
+
+
+    </div>
+    <script src="https://unpkg.com/vue@3.2.45/dist/vue.global.js"></script>
+    <script>
+        const shoppingList = Vue.createApp ({
+            data(){
+                return {
+                    header: 'Shopping List App',
+                    editing: false,
+                    newItem: '',
+                    newItemHighPriority: false,
+
+                    items: [
+                        {id:1, label:"10 party hats", purchased:true, highPriority:false},
+                        {id:2, label:"2 board games", purchased:false, highPriority:false},
+                        {id:3, label:"20 cups", purchased:true, highPriority:true}
+                    ]     
+                }
+            },
+
+            computed:{ // se utiliza cuando queremos cambiar la presentacion de la data o como queremos mostrarla en la aplicacion.
+                characterCounter(){
+                    return this.newItem.length
+                },
+
+                reversedItems () {
+                    return [...this.items].reverse();
+                }
+            },
+            
+            methods:{ //se utiliza cuando queremos cambiar la data de nuestro proyecto
+                saveItem(){
+                    this.items.push({
+                        id: this.items.length+1, 
+                        label: this.newItem,
+                        highPriority: this.newItemHighPriority
+                    });
+
+                    this.newItem = "";
+                    this.newItemHighPriority = "";
+                },
+                
+                doEdit(editing){
+                    this.editing = editing;
+                    this.newItem = "";
+                    this.newItemHighPriority = "";
+                },
+
+                togglePurchased(item){
+                    item.purchased = !item.purchased
+                }
+            }
+        }).mount('#shopping-list')
+    </script>
+</body>
+</html>
